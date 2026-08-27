@@ -11,26 +11,24 @@
   .icon {width:80px; text-align:center; margin:10px; cursor:pointer; background:#ddd; border-radius:10px; padding:10px;}
   .nav {position:absolute; bottom:0; width:100%; height:50px; background:#222; display:flex; justify-content:space-around; align-items:center; color:white; font-size:24px;}
   .window {position:absolute; top:40px; left:0; right:0; bottom:50px; background:#fff; overflow:auto; padding:10px;}
-  canvas {background:#ccc; display:block; margin:auto;}
-  .controls {text-align:center; margin-top:10px;}
-  .controls button {margin:5px; padding:10px;}
-  .charge {text-align:center; margin-top:50px; font-size:24px;}
   .battery {width:200px; height:40px; border:2px solid #000; margin:auto; position:relative;}
   .battery::after {content:""; position:absolute; right:-10px; top:10px; width:10px; height:20px; background:#000;}
   .fill {height:100%; width:0%; background:lime; transition:width 3s;}
+  .card {border:1px solid #ccc; padding:8px; margin-top:8px; border-radius:6px;}
+  .card button {margin-top:5px;}
 </style>
 </head>
 <body>
 <div class="phone">
-  <div class="statusbar" id="statusbar">🔋100% 📶4G | 09:13</div>
+  <div class="statusbar" id="statusbar">🔋100% 📶4G | 09:30</div>
   <div class="desktop">
     <div class="icon" onclick="openApp('google')">🌐<br>Google</div>
-    <div class="icon" onclick="openApp('youtube')">📺<br>YouTube</div>
-    <div class="icon" onclick="openApp('game')">🚗<br>Oyun</div>
-    <div class="icon" onclick="openApp('dialer')">📞<br>Arama</div>
-    <div class="icon" onclick="openApp('camera')">📷<br>Kamera</div>
-    <div class="icon" onclick="openApp('snapchat')">👻<br>Snapchat</div>
+    <div class="icon" onclick="openApp('facebook')">📘<br>Facebook</div>
+    <div class="icon" onclick="openApp('instagram')">📸<br>Instagram</div>
+    <div class="icon" onclick="openApp('tiktok')">🎵<br>TikTok</div>
+    <div class="icon" onclick="openApp('duolingo')">🦉<br>Duolingo</div>
     <div class="icon" onclick="openApp('copilot')">🤖<br>Copilot</div>
+    <div class="icon" onclick="openApp('camera')">📷<br>Kamera</div>
     <div class="icon" onclick="openApp('charge')">🔌<br>Şarj</div>
   </div>
   <div class="nav">
@@ -44,49 +42,251 @@
 let historyStack=[];
 let camStream=null;
 let batteryLevel=100;
+let searchHistory=[]; // Google arama geçmişi
+const NOKIA_SRC="https://www.youtube.com/embed/2Z4m4lnjxkY";
 
+// ------------------ UYGULAMA AÇMA ------------------
 function openApp(app){
   let win=document.createElement("div");
   win.className="window";
-  if(app==="copilot") {
-    win.innerHTML="<h2>Copilot 🤖</h2><p>Adını yaz:</p><input id='ad' placeholder='Adınız'><button onclick='selamVer()'>Gönder</button><div id='selam'></div>";
+
+  if(app==="google"){
+    win.innerHTML=`
+      <h2>Google</h2>
+      <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" width="200"><br><br>
+      <input id="gAra" placeholder="Google'da ara" style="width:90%; padding:8px;">
+      <button onclick="googleAra()">Ara</button>
+      <h3>Son aramalar</h3>
+      <ul id="gGecmis"></ul>
+      <h3>Sonuçlar</h3>
+      <div id="gSonuc"></div>
+    `;
+    setTimeout(guncelleGecmis,50);
   }
-  if(app==="google") win.innerHTML="<h2>Google</h2><input id='search' placeholder='Ara'><button onclick='searchApp()'>Ara</button><div id='searchResult'></div>";
-  if(app==="youtube") win.innerHTML="<h2>YouTube - Nokia Memeleri</h2><iframe width='100%' height='200' src='https://www.youtube.com/embed/2Z4m4lnjxkY' allowfullscreen></iframe>";
-  if(app==="game") {win.innerHTML="<h2>Araba Oyunu</h2><canvas id='car' width='300' height='200'></canvas><div class='controls'><button onclick='move(-10,0)'>◁</button><button onclick='move(10,0)'>▷</button><br><button onclick='move(0,-10)'>↑</button><button onclick='move(0,10)'>↓</button></div>"; setTimeout(initGame,100);}
-  if(app==="dialer") win.innerHTML="<h2>Arama</h2><input id='numara' placeholder='Numara'><button onclick='alert(\"Aranıyor: \"+document.getElementById(\"numara\").value)'>Ara</button>";
-  if(app==="camera") win.innerHTML="<h2>Kamera</h2><button onclick='startCam(\"user\")'>Ön Kamera</button><button onclick='startCam(\"environment\")'>Arka Kamera</button><br><video id='cam' autoplay playsinline width='100%' height='90%'></video>";
-  if(app==="snapchat") win.innerHTML="<h2>Snapchat 👻</h2><p>Fotoğraf çekmek için kamera açılır (simülasyon).</p>";
-  if(app==="charge") {win.innerHTML="<div class='charge'><h2>Şarja Takıldı ⚡</h2><div class='battery'><div class='fill' id='fill'></div></div><p id='chargeText'>Şarj oluyor...</p></div>"; setTimeout(()=>{document.getElementById("fill").style.width="100%"; document.getElementById("chargeText").innerText="Şarj doldu ✅"; batteryLevel=100; updateStatusBar(true);},3000);}
+
+  if(app==="facebook"){
+    win.innerHTML=`
+      <div style="background:#3b5998;color:white;padding:8px;">Facebook</div>
+      <h3>Akış</h3>
+      <div class="card">
+        <b>Nokia Meme Videosu</b>
+        <p>Arkadaşın bir video paylaştı.</p>
+        <iframe width="100%" height="200" src="${NOKIA_SRC}" allowfullscreen></iframe>
+      </div>
+      <div class="card">
+        <b>Sahte Gönderi</b>
+        <p>Bugün hava çok güzel!</p>
+      </div>
+    `;
+  }
+
+  if(app==="instagram"){
+    win.innerHTML=`
+      <div style="background:#000;color:white;padding:8px;">Instagram</div>
+      <p>Hikayeler</p>
+      <div style="display:flex;gap:8px;">
+        <div style="width:50px;height:50px;border-radius:50%;background:#f90;"></div>
+        <div style="width:50px;height:50px;border-radius:50%;background:#09f;"></div>
+      </div>
+      <h3>Gönderi</h3>
+      <div class="card">
+        <b>Nokia Meme Reels</b>
+        <iframe width="100%" height="200" src="${NOKIA_SRC}" allowfullscreen></iframe>
+        <p>😂 1.2M izlenme</p>
+      </div>
+    `;
+  }
+
+  if(app==="tiktok"){
+    win.innerHTML=`
+      <div style="background:#000;color:#0ff;padding:8px;">TikTok</div>
+      <h3>For You</h3>
+      <iframe width="100%" height="250" src="${NOKIA_SRC}" allowfullscreen></iframe>
+      <p>💬 Yorumlar</p>
+      <ul>
+        <li>Bu telefon asla kırılmaz 😂</li>
+        <li>Çocukluğumun sesi...</li>
+        <li>1M kez dinledim hâlâ sıkılmadım.</li>
+      </ul>
+    `;
+  }
+
+  if(app==="duolingo"){
+    win.innerHTML=`
+      <div style="background:#58cc02;color:white;padding:8px;">Duolingo</div>
+      <h3>Dersler</h3>
+      <ul>
+        <li>Temel 1</li>
+        <li>Temel 2</li>
+        <li>İfadeler</li>
+      </ul>
+      <h3>Ders Videosu</h3>
+      <iframe width="100%" height="200" src="${NOKIA_SRC}" allowfullscreen></iframe>
+      <p>🦉 Baykuş: Dersi bitirmeyi unutma!</p>
+    `;
+  }
+
+  if(app==="copilot"){
+    win.innerHTML=`
+      <h2>Copilot 🤖</h2>
+      <p>Adını yaz:</p>
+      <input id="ad" placeholder="Adın">
+      <button onclick="selamVer()">Gönder</button>
+      <div id="selam"></div>
+    `;
+  }
+
+  if(app==="camera"){
+    win.innerHTML=`
+      <h2>Kamera</h2>
+      <button onclick='startCam("user")'>Ön Kamera</button>
+      <button onclick='startCam("environment")'>Arka Kamera</button><br>
+      <video id="cam" autoplay playsinline width="100%" height="90%"></video>
+    `;
+  }
+
+  if(app==="charge"){
+    win.innerHTML=`
+      <h2>Şarja Takıldı ⚡</h2>
+      <div class="battery"><div class="fill" id="fill"></div></div>
+      <p id="chargeText">Şarj oluyor...</p>
+    `;
+    setTimeout(()=>{
+      document.getElementById("fill").style.width="100%";
+      document.getElementById("chargeText").innerText="Şarj doldu ✅";
+      batteryLevel=100;
+      updateStatusBar(true);
+    },3000);
+  }
+
   document.querySelector(".phone").appendChild(win);
   historyStack.push(win);
 }
 
+// ------------------ GOOGLE ARAMA ------------------
+function googleAra(){
+  let q=document.getElementById("gAra").value.trim().toLowerCase();
+  if(!q) return;
+  searchHistory.unshift(q);
+  if(searchHistory.length>10) searchHistory.pop();
+  guncelleGecmis();
+
+  let html="";
+  if(q.includes("facebook")){
+    html+=`
+      <div class="card">
+        <b>Facebook</b>
+        <p>Sosyal ağ – arkadaşlarınla bağlantı kur.</p>
+        <button onclick="openApp('facebook')">Aç</button>
+      </div>`;
+  }
+  if(q.includes("instagram")){
+    html+=`
+      <div class="card">
+        <b>Instagram</b>
+        <p>Fotoğraf ve video paylaş.</p>
+        <button onclick="openApp('instagram')">Aç</button>
+      </div>`;
+  }
+  if(q.includes("tiktok")){
+    html+=`
+      <div class="card">
+        <b>TikTok</b>
+        <p>Kısa videolar – Nokia meme trendde!</p>
+        <button onclick="openApp('tiktok')">Aç</button>
+      </div>`;
+  }
+  if(q.includes("duolingo")){
+    html+=`
+      <div class="card">
+        <b>Duolingo</b>
+        <p>Dil öğren – eğlenceli dersler.</p>
+        <button onclick="openApp('duolingo')">Aç</button>
+      </div>`;
+  }
+  if(q.includes("nokia") || q.includes("meme")){
+    html+=`
+      <div class="card">
+        <b>Nokia Meme Videosu</b>
+        <p>Tek video – klasik zil sesi memeleri.</p>
+        <iframe width="100%" height="200" src="${NOKIA_SRC}" allowfullscreen></iframe>
+      </div>`;
+  }
+  if(q.includes("roblox")){
+    html+=`
+      <div class="card">
+        <b>Roblox</b>
+        <p>Oyun platformu – obby, tycoon, simulator.</p>
+      </div>`;
+  }
+  if(!html){
+    html="<p>Bu arama için özel sonuç yok. Yine de geçmişe kaydedildi.</p>";
+  }
+  document.getElementById("gSonuc").innerHTML=html;
+}
+
+function guncelleGecmis(){
+  let ul=document.getElementById("gGecmis");
+  if(!ul) return;
+  ul.innerHTML="";
+  searchHistory.forEach(item=>{
+    let li=document.createElement("li");
+    li.textContent=item;
+    ul.appendChild(li);
+  });
+}
+
+// ------------------ COPILOT SELAM ------------------
 function selamVer(){
-  let ad=document.getElementById("ad").value;
+  let ad=document.getElementById("ad").value.trim();
+  if(!ad) return;
   document.getElementById("selam").innerText="Merhaba "+ad+" 👋";
 }
 
-function goBack(){if(historyStack.length){let w=historyStack.pop(); if(w.querySelector("#cam")&&camStream){camStream.getTracks().forEach(t=>t.stop()); camStream=null;} w.remove();}}
-function goHome(){historyStack.forEach(w=>{if(w.querySelector("#cam")&&camStream){camStream.getTracks().forEach(t=>t.stop()); camStream=null;} w.remove();}); historyStack=[];}
+// ------------------ KAMERA ------------------
+function startCam(facing){
+  navigator.mediaDevices.getUserMedia({video:{facingMode:facing}})
+  .then(stream=>{
+    camStream=stream;
+    document.getElementById("cam").srcObject=stream;
+  })
+  .catch(err=>alert("Kamera hatası: "+err));
+}
+
+// ------------------ GERİ / ANA ------------------
+function goBack(){
+  if(historyStack.length){
+    let w=historyStack.pop();
+    if(w.querySelector("#cam") && camStream){
+      camStream.getTracks().forEach(t=>t.stop());
+      camStream=null;
+    }
+    w.remove();
+  }
+}
+function goHome(){
+  historyStack.forEach(w=>{
+    if(w.querySelector("#cam") && camStream){
+      camStream.getTracks().forEach(t=>t.stop());
+      camStream=null;
+    }
+    w.remove();
+  });
+  historyStack=[];
+}
 function showApps(){alert("Açık uygulamalar: "+historyStack.length);}
 
-function searchApp(){let val=document.getElementById("search").value.toLowerCase(); let result=document.getElementById("searchResult"); if(val==="roblox"){result.innerHTML="<h3>Roblox Oyunları</h3><ul><li>Obby Parkur</li><li>Tycoon İşletme</li><li>Simulator Koşu</li><li>Roleplay Şehir</li></ul>";} else {result.innerHTML="<p>Sonuç bulunamadı.</p>";}}
-
-let ctx, carX=140, carY=90;
-function initGame(){let canvas=document.getElementById("car"); if(!canvas) return; ctx=canvas.getContext("2d"); drawCar();}
-function drawCar(){ctx.clearRect(0,0,300,200); ctx.fillStyle="red"; ctx.fillRect(carX,carY,20,20);}
-function move(dx,dy){carX+=dx; carY+=dy; if(carX<0) carX=0; if(carY<0) carY=0; if(carX>280) carX=280; if(carY>180) carY=180; drawCar();}
-
-function startCam(facing){navigator.mediaDevices.getUserMedia({video:{facingMode:facing}}).then(stream=>{camStream=stream; document.getElementById('cam').srcObject=stream;}).catch(err=>alert("Kamera hatası: "+err));}
-
+// ------------------ PİL ------------------
 function updateStatusBar(forceFull=false){
   let now=new Date();
   let h=String(now.getHours()).padStart(2,"0");
   let m=String(now.getMinutes()).padStart(2,"0");
-  if(!forceFull){batteryLevel--; if(batteryLevel<0) batteryLevel=0;}
-  let signal=["📶2G","📶3G","📶4G","📶5G"][Math.floor(Math.random()*4)];
-  document.getElementById("statusbar").innerText="🔋"+batteryLevel+"% "+signal+" | "+h+":"+m;
+  if(!forceFull){
+    batteryLevel--;
+    if(batteryLevel<0) batteryLevel=0;
+  }
+  document.getElementById("statusbar").innerText=
+    "🔋"+batteryLevel+"% 📶4G | "+h+":"+m;
 }
 setInterval(updateStatusBar,10000);
 updateStatusBar();
