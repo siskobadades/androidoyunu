@@ -16,7 +16,7 @@
 <body>
 
 <div class="phone">
-  <div class="statusbar" id="statusbar">🔋100% 📶4G | 15:25</div>
+  <div class="statusbar" id="statusbar">🔋100% 📶4G | 16:10</div>
 
   <div class="desktop">
     <div class="icon" onclick="openApp('google')">🌐<br>Google</div>
@@ -41,13 +41,14 @@
 <script>
 let historyStack=[];
 let camStream=null;
+const NOKIA_SRC="https://www.youtube.com/embed/2Z4m4lnjxkY";
 
 // ------------------ UYGULAMA AÇMA ------------------
 function openApp(app){
   let win=document.createElement("div");
   win.className="window";
 
-  // GOOGLE — GERÇEK google.com AÇILIR (yeni sekme yok)
+  // GOOGLE
   if(app==="google"){
     win.innerHTML=`
       <h2>Google</h2>
@@ -64,27 +65,40 @@ function openApp(app){
 
   // YOUTUBE
   if(app==="youtube"){
-    win.innerHTML=`<h2>YouTube</h2><iframe width="100%" height="200" src="https://www.youtube.com/embed/2Z4m4lnjxkY"></iframe>`;
+    win.innerHTML=`<h2>YouTube</h2><iframe width="100%" height="200" src="${NOKIA_SRC}" allowfullscreen></iframe>`;
   }
 
   // FACEBOOK
   if(app==="facebook"){
-    win.innerHTML=`<h2>Facebook</h2><p>Simülasyon akışı.</p>`;
+    win.innerHTML=`<h2>Facebook</h2><iframe width="100%" height="200" src="${NOKIA_SRC}" allowfullscreen></iframe>`;
   }
 
-  // INSTAGRAM
+  // INSTAGRAM → Nokia Meme
   if(app==="instagram"){
-    win.innerHTML=`<h2>Instagram</h2><p>Simülasyon gönderisi.</p>`;
+    win.innerHTML=`
+      <h2>Instagram</h2>
+      <div><b>Nokia Meme Reels</b></div>
+      <iframe width="100%" height="200" src="${NOKIA_SRC}" allowfullscreen></iframe>
+    `;
   }
 
-  // TIKTOK
+  // TIKTOK → Nokia Meme
   if(app==="tiktok"){
-    win.innerHTML=`<h2>TikTok</h2><iframe width="100%" height="250" src="https://www.youtube.com/embed/2Z4m4lnjxkY"></iframe>`;
+    win.innerHTML=`
+      <h2>TikTok</h2>
+      <iframe width="100%" height="250" src="${NOKIA_SRC}" allowfullscreen></iframe>
+      <p>💬 Yorumlar: Bu telefon asla kırılmaz 😂</p>
+    `;
   }
 
-  // DUOLINGO
+  // DUOLINGO → Nokia Meme
   if(app==="duolingo"){
-    win.innerHTML=`<h2>Duolingo</h2><p>Ders ekranı.</p>`;
+    win.innerHTML=`
+      <h2>Duolingo</h2>
+      <p>Ders Videosu</p>
+      <iframe width="100%" height="200" src="${NOKIA_SRC}" allowfullscreen></iframe>
+      <p>🦉 Baykuş: Dersi bitirmeyi unutma!</p>
+    `;
   }
 
   // COPILOT
@@ -116,12 +130,10 @@ function openApp(app){
   historyStack.push(win);
 }
 
-// ------------------ GERÇEK GOOGLE ARAMA (aynı pencereye yüklenir) ------------------
+// ------------------ GOOGLE ARAMA ------------------
 function googleAra(){
   let q=document.getElementById("gAra").value.trim();
   if(!q) return;
-
-  // Google uygulamasının penceresini google.com ile değiştir
   let win=historyStack[historyStack.length-1];
   win.innerHTML=`<iframe src="https://www.google.com/search?q=${encodeURIComponent(q)}" style="width:100%; height:100%; border:none;"></iframe>`;
 }
