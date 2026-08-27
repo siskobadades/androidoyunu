@@ -2,34 +2,26 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Telefon Simülasyonu</title>
+<title>Telefon OS</title>
 <style>
   body {margin:0; background:#111; display:flex; justify-content:center;}
   .phone {width:360px; height:640px; background:#eee; border-radius:30px; overflow:hidden; position:relative; font-family:Arial;}
   .statusbar {background:#000; color:#fff; padding:5px; text-align:center; font-size:14px;}
   .desktop {display:flex; flex-wrap:wrap; justify-content:center; padding:20px;}
   .icon {width:80px; text-align:center; margin:10px; cursor:pointer; background:#ddd; border-radius:10px; padding:10px;}
-  .nav {position:absolute; bottom:0; width:100%; height:50px; background:#222; display:flex; justify-content:space-around; align-items:center; color:white; font-size:24px;}
   .window {position:absolute; top:40px; left:0; right:0; bottom:50px; background:#fff; overflow:auto; padding:10px;}
-  .battery {width:200px; height:40px; border:2px solid #000; margin:auto; position:relative;}
-  .battery::after {content:""; position:absolute; right:-10px; top:10px; width:10px; height:20px; background:#000;}
-  .fill {height:100%; width:0%; background:lime; transition:width 3s;}
-  .card {border:1px solid #ccc; padding:8px; margin-top:8px; border-radius:6px;}
+  .nav {position:absolute; bottom:0; width:100%; height:50px; background:#222; display:flex; justify-content:space-around; align-items:center; color:white; font-size:24px;}
 </style>
 </head>
 <body>
 
 <div class="phone">
-  <div class="statusbar" id="statusbar">🔋100% 📶4G | 10:00</div>
+  <div class="statusbar" id="statusbar">🔋100% 📶4G | 15:19</div>
 
   <div class="desktop">
     <div class="icon" onclick="openApp('google')">🌐<br>Google</div>
-    <div class="icon" onclick="openApp('facebook')">📘<br>Facebook</div>
-    <div class="icon" onclick="openApp('instagram')">📸<br>Instagram</div>
-    <div class="icon" onclick="openApp('tiktok')">🎵<br>TikTok</div>
-    <div class="icon" onclick="openApp('duolingo')">🦉<br>Duolingo</div>
-    <div class="icon" onclick="openApp('copilot')">🤖<br>Copilot</div>
     <div class="icon" onclick="openApp('camera')">📷<br>Kamera</div>
+    <div class="icon" onclick="openApp('copilot')">🤖<br>Copilot</div>
     <div class="icon" onclick="openApp('charge')">🔌<br>Şarj</div>
   </div>
 
@@ -43,66 +35,29 @@
 <script>
 let historyStack=[];
 let camStream=null;
-let batteryLevel=100;
-let searchHistory=[];
-const NOKIA_SRC="https://www.youtube.com/embed/2Z4m4lnjxkY";
 
 // ------------------ UYGULAMA AÇMA ------------------
 function openApp(app){
   let win=document.createElement("div");
   win.className="window";
 
-  // GOOGLE
+  // GOOGLE (GERÇEK google.com açılır)
   if(app==="google"){
     win.innerHTML=`
       <h2>Google</h2>
-      <img src="https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png" width="200"><br><br>
       <input id="gAra" placeholder="Google'da ara" style="width:90%; padding:8px;">
       <button onclick="googleAra()">Ara</button>
       <p style="font-size:12px;color:#555;">Gerçek Google yeni sekmede açılır.</p>
-      <h3>Son aramalar</h3>
-      <ul id="gGecmis"></ul>
-      <h3>Simülasyon Sonuçları</h3>
-      <div id="gSonuc"></div>
-    `;
-    setTimeout(guncelleGecmis,50);
-  }
-
-  // FACEBOOK
-  if(app==="facebook"){
-    win.innerHTML=`
-      <div style="background:#3b5998;color:white;padding:8px;">Facebook</div>
-      <div class="card">
-        <b>Nokia Meme Videosu</b>
-        <iframe width="100%" height="200" src="${NOKIA_SRC}" allowfullscreen></iframe>
-      </div>
     `;
   }
 
-  // INSTAGRAM
-  if(app==="instagram"){
+  // KAMERA
+  if(app==="camera"){
     win.innerHTML=`
-      <div style="background:#000;color:white;padding:8px;">Instagram</div>
-      <div class="card">
-        <b>Nokia Meme Reels</b>
-        <iframe width="100%" height="200" src="${NOKIA_SRC}" allowfullscreen></iframe>
-      </div>
-    `;
-  }
-
-  // TIKTOK
-  if(app==="tiktok"){
-    win.innerHTML=`
-      <div style="background:#000;color:#0ff;padding:8px;">TikTok</div>
-      <iframe width="100%" height="250" src="${NOKIA_SRC}" allowfullscreen></iframe>
-    `;
-  }
-
-  // DUOLINGO
-  if(app==="duolingo"){
-    win.innerHTML=`
-      <div style="background:#58cc02;color:white;padding:8px;">Duolingo</div>
-      <iframe width="100%" height="200" src="${NOKIA_SRC}" allowfullscreen></iframe>
+      <h2>Kamera</h2>
+      <button onclick='startCam("user")'>Ön Kamera</button>
+      <button onclick='startCam("environment")'>Arka Kamera</button><br>
+      <video id="cam" autoplay playsinline width="100%" height="90%"></video>
     `;
   }
 
@@ -117,87 +72,28 @@ function openApp(app){
     `;
   }
 
-  // KAMERA
-  if(app==="camera"){
-    win.innerHTML=`
-      <h2>Kamera</h2>
-      <button onclick='startCam("user")'>Ön Kamera</button>
-      <button onclick='startCam("environment")'>Arka Kamera</button><br>
-      <video id="cam" autoplay playsinline width="100%" height="90%"></video>
-    `;
-  }
-
   // ŞARJ
   if(app==="charge"){
     win.innerHTML=`
       <h2>Şarja Takıldı ⚡</h2>
-      <div class="battery"><div class="fill" id="fill"></div></div>
-      <p id="chargeText">Şarj oluyor...</p>
+      <p>Şarj oluyor...</p>
     `;
-    setTimeout(()=>{
-      document.getElementById("fill").style.width="100%";
-      document.getElementById("chargeText").innerText="Şarj doldu ✅";
-      batteryLevel=100;
-      updateStatusBar(true);
-    },3000);
   }
 
   document.querySelector(".phone").appendChild(win);
   historyStack.push(win);
 }
 
-// ------------------ GOOGLE ARAMA ------------------
+// ------------------ GERÇEK GOOGLE ARAMA ------------------
 function googleAra(){
   let q=document.getElementById("gAra").value.trim();
   if(!q) return;
 
-  // Geçmişe ekle
-  searchHistory.unshift(q);
-  if(searchHistory.length>10) searchHistory.pop();
-  guncelleGecmis();
-
-  // GERÇEK GOOGLE ARAMASI (yeni sekmede)
+  // GERÇEK GOOGLE SİTESİ AÇILIR
   window.open("https://www.google.com/search?q="+encodeURIComponent(q), "_blank");
-
-  // Simülasyon sonuçları
-  let qLower=q.toLowerCase();
-  let html="";
-
-  if(qLower.includes("facebook")){
-    html+=`<div class="card"><b>Facebook</b><button onclick="openApp('facebook')">Aç</button></div>`;
-  }
-  if(qLower.includes("instagram")){
-    html+=`<div class="card"><b>Instagram</b><button onclick="openApp('instagram')">Aç</button></div>`;
-  }
-  if(qLower.includes("tiktok")){
-    html+=`<div class="card"><b>TikTok</b><button onclick="openApp('tiktok')">Aç</button></div>`;
-  }
-  if(qLower.includes("duolingo")){
-    html+=`<div class="card"><b>Duolingo</b><button onclick="openApp('duolingo')">Aç</button></div>`;
-  }
-  if(qLower.includes("nokia")){
-    html+=`<div class="card"><b>Nokia Meme</b><iframe width="100%" height="200" src="${NOKIA_SRC}"></iframe></div>`;
-  }
-
-  if(!html){
-    html="<p>Simülasyon içinde özel sonuç yok. Gerçek Google açıldı.</p>";
-  }
-
-  document.getElementById("gSonuc").innerHTML=html;
 }
 
-function guncelleGecmis(){
-  let ul=document.getElementById("gGecmis");
-  if(!ul) return;
-  ul.innerHTML="";
-  searchHistory.forEach(item=>{
-    let li=document.createElement("li");
-    li.textContent=item;
-    ul.appendChild(li);
-  });
-}
-
-// ------------------ COPILOT SELAM ------------------
+// ------------------ COPILOT ------------------
 function selamVer(){
   let ad=document.getElementById("ad").value.trim();
   if(!ad) return;
@@ -236,21 +132,6 @@ function goHome(){
   historyStack=[];
 }
 function showApps(){alert("Açık uygulamalar: "+historyStack.length);}
-
-// ------------------ PİL ------------------
-function updateStatusBar(forceFull=false){
-  let now=new Date();
-  let h=String(now.getHours()).padStart(2,"0");
-  let m=String(now.getMinutes()).padStart(2,"0");
-  if(!forceFull){
-    batteryLevel--;
-    if(batteryLevel<0) batteryLevel=0;
-  }
-  document.getElementById("statusbar").innerText=
-    "🔋"+batteryLevel+"% 📶4G | "+h+":"+m;
-}
-setInterval(updateStatusBar,10000);
-updateStatusBar();
 </script>
 </body>
 </html>
