@@ -16,10 +16,16 @@
 <body>
 
 <div class="phone">
-  <div class="statusbar" id="statusbar">🔋100% 📶4G | 15:19</div>
+  <div class="statusbar" id="statusbar">🔋100% 📶4G | 15:25</div>
 
   <div class="desktop">
     <div class="icon" onclick="openApp('google')">🌐<br>Google</div>
+    <div class="icon" onclick="openApp('snapchat')">👻<br>Snapchat</div>
+    <div class="icon" onclick="openApp('youtube')">📺<br>YouTube</div>
+    <div class="icon" onclick="openApp('facebook')">📘<br>Facebook</div>
+    <div class="icon" onclick="openApp('instagram')">📸<br>Instagram</div>
+    <div class="icon" onclick="openApp('tiktok')">🎵<br>TikTok</div>
+    <div class="icon" onclick="openApp('duolingo')">🦉<br>Duolingo</div>
     <div class="icon" onclick="openApp('camera')">📷<br>Kamera</div>
     <div class="icon" onclick="openApp('copilot')">🤖<br>Copilot</div>
     <div class="icon" onclick="openApp('charge')">🔌<br>Şarj</div>
@@ -41,13 +47,53 @@ function openApp(app){
   let win=document.createElement("div");
   win.className="window";
 
-  // GOOGLE (GERÇEK google.com açılır)
+  // GOOGLE — GERÇEK google.com AÇILIR (yeni sekme yok)
   if(app==="google"){
     win.innerHTML=`
       <h2>Google</h2>
       <input id="gAra" placeholder="Google'da ara" style="width:90%; padding:8px;">
       <button onclick="googleAra()">Ara</button>
-      <p style="font-size:12px;color:#555;">Gerçek Google yeni sekmede açılır.</p>
+      <p style="font-size:12px;color:#555;">Gerçek google.com bu pencereye yüklenir.</p>
+    `;
+  }
+
+  // SNAPCHAT
+  if(app==="snapchat"){
+    win.innerHTML=`<h2>Snapchat</h2><p>Simülasyon ekranı.</p>`;
+  }
+
+  // YOUTUBE
+  if(app==="youtube"){
+    win.innerHTML=`<h2>YouTube</h2><iframe width="100%" height="200" src="https://www.youtube.com/embed/2Z4m4lnjxkY"></iframe>`;
+  }
+
+  // FACEBOOK
+  if(app==="facebook"){
+    win.innerHTML=`<h2>Facebook</h2><p>Simülasyon akışı.</p>`;
+  }
+
+  // INSTAGRAM
+  if(app==="instagram"){
+    win.innerHTML=`<h2>Instagram</h2><p>Simülasyon gönderisi.</p>`;
+  }
+
+  // TIKTOK
+  if(app==="tiktok"){
+    win.innerHTML=`<h2>TikTok</h2><iframe width="100%" height="250" src="https://www.youtube.com/embed/2Z4m4lnjxkY"></iframe>`;
+  }
+
+  // DUOLINGO
+  if(app==="duolingo"){
+    win.innerHTML=`<h2>Duolingo</h2><p>Ders ekranı.</p>`;
+  }
+
+  // COPILOT
+  if(app==="copilot"){
+    win.innerHTML=`
+      <h2>Copilot 🤖</h2>
+      <input id="ad" placeholder="Adın">
+      <button onclick="selamVer()">Gönder</button>
+      <div id="selam"></div>
     `;
   }
 
@@ -61,42 +107,28 @@ function openApp(app){
     `;
   }
 
-  // COPILOT
-  if(app==="copilot"){
-    win.innerHTML=`
-      <h2>Copilot 🤖</h2>
-      <p>Adını yaz:</p>
-      <input id="ad" placeholder="Adın">
-      <button onclick="selamVer()">Gönder</button>
-      <div id="selam"></div>
-    `;
-  }
-
   // ŞARJ
   if(app==="charge"){
-    win.innerHTML=`
-      <h2>Şarja Takıldı ⚡</h2>
-      <p>Şarj oluyor...</p>
-    `;
+    win.innerHTML=`<h2>Şarja Takıldı ⚡</h2><p>Şarj oluyor...</p>`;
   }
 
   document.querySelector(".phone").appendChild(win);
   historyStack.push(win);
 }
 
-// ------------------ GERÇEK GOOGLE ARAMA ------------------
+// ------------------ GERÇEK GOOGLE ARAMA (aynı pencereye yüklenir) ------------------
 function googleAra(){
   let q=document.getElementById("gAra").value.trim();
   if(!q) return;
 
-  // GERÇEK GOOGLE SİTESİ AÇILIR
-  window.open("https://www.google.com/search?q="+encodeURIComponent(q), "_blank");
+  // Google uygulamasının penceresini google.com ile değiştir
+  let win=historyStack[historyStack.length-1];
+  win.innerHTML=`<iframe src="https://www.google.com/search?q=${encodeURIComponent(q)}" style="width:100%; height:100%; border:none;"></iframe>`;
 }
 
 // ------------------ COPILOT ------------------
 function selamVer(){
   let ad=document.getElementById("ad").value.trim();
-  if(!ad) return;
   document.getElementById("selam").innerText="Merhaba "+ad+" 👋";
 }
 
@@ -106,8 +138,7 @@ function startCam(facing){
   .then(stream=>{
     camStream=stream;
     document.getElementById("cam").srcObject=stream;
-  })
-  .catch(err=>alert("Kamera hatası: "+err));
+  });
 }
 
 // ------------------ GERİ / ANA ------------------
@@ -122,13 +153,7 @@ function goBack(){
   }
 }
 function goHome(){
-  historyStack.forEach(w=>{
-    if(w.querySelector("#cam") && camStream){
-      camStream.getTracks().forEach(t=>t.stop());
-      camStream=null;
-    }
-    w.remove();
-  });
+  historyStack.forEach(w=>w.remove());
   historyStack=[];
 }
 function showApps(){alert("Açık uygulamalar: "+historyStack.length);}
